@@ -1,11 +1,12 @@
 import sqlite3
 
-DB_NAME = "calories.db"
-
 database = sqlite3.connect("calorie_tracker.db")
 cursor = database.cursor()
 
-#klienti
+# Ieslēdzam ārējo atslēgu atbalstu
+database.execute("PRAGMA foreign_keys = ON;")
+
+# 1. users
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
@@ -135,5 +136,5 @@ cursor.execute("""
     )
 """)
 
-
 database.commit()
+database.close()

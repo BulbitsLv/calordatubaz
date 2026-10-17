@@ -1,108 +1,93 @@
-from datetime import datetime
 import sqlite3
 
-
-def registret_lietotaju():
-  conn = sqlite3.connect("calorie_tracker.db")
-  cursor = conn.cursor()
-  cursor.execute("PRAGMA foreign_keys = ON;")
-
-  print("\n--- Jauna lietotāja reģistrācija ---")
-  vards = input("Ievadi savu vārdu: ")
-  epasts = input("Ievadi e-pastu: ")
-  mērķis = int(input("Ievadi dienas kaloriju mērķi (piem., 2000): "))
-  tagad = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-  cursor.execute(
-      """
-        INSERT INTO users (email, display_name, daily_calorie_goal, created_at)
-        VALUES (?, ?, ?, ?)
-    """,
-      (epasts, vards, mērķis, tagad),
-  )
-
-  conn.commit()
-  conn.close()
-  print("Lietotājs veiksmīgi reģistrēts!")
-
-
-def pievienot_aktivitati():
-  conn = sqlite3.connect("calorie_tracker.db")
-  cursor = conn.cursor()
-  cursor.execute("PRAGMA foreign_keys = ON;")
-
-  # Parādām lietotājus
-  cursor.execute("SELECT id, display_name FROM users")
-  lietotaji = cursor.fetchall()
-  if not lietotaji:
-    print("Vispirms reģistrē vismaz vienu lietotāju!")
-    conn.close()
-    return
-
-  print("\n--- Reģistrētie lietotāji ---")
-  for l in lietotaji:
-    print(f"ID: {l[0]} | Vārds: {l[1]}")
-
-  user_id = int(input("Izvēlies lietotāja ID: "))
-
-  # Parādām vingrinājumus
-  cursor.execute("SELECT id, name, calories_per_minute FROM exercises")
-  vingrinajumi = cursor.fetchall()
-
-  if not vingrinajumi:
-    cursor.execute(
-        "INSERT INTO exercises (name, calories_per_minute) VALUES (?, ?)",
-        ("Skriešana", 10.0),
-    )
-    conn.commit()
-    cursor.execute("SELECT id, name, calories_per_minute FROM exercises")
-    vingrinajumi = cursor.fetchall()
-
-  print("\n--- Pieejamie vingrinājumi ---")
-  for v in vingrinajumi:
-    print(f"ID: {v[0]} | Nosaukums: {v[1]} | kcal/min: {v[2]}")
-
-  exercise_id = int(input("Izvēlies vingrinājuma ID: "))
-  ilgums = float(input("Ievadi ilgumu minūtēs: "))
-
-  cursor.execute(
-      "SELECT calories_per_minute FROM exercises WHERE id = ?", (exercise_id,)
-  )
-  rez = cursor.fetchone()
-  kalorijas_minutē = rez[0]
-  kopējās_kalorijas = ilgums * kalorijas_minutē
-
-  tagad = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-  cursor.execute(
-      """
-        INSERT INTO exercise_logs (user_id, exercise_id, duration_minutes, calories_burned, performed_at)
-        VALUES (?, ?, ?, ?, ?)
-    """,
-      (user_id, exercise_id, ilgums, kopējās_kalorijas, tagad),
-  )
-
-  conn.commit()
-  conn.close()
-  print(
-      f"Aktivitāte saglabāta! Sadedzinātas aptuveni {kopējās_kalorijas} kcal."
-  )
-
-  if __name__ == "__main__":
+def run():
+    # Pārliecināmies, ka datubāze un tabulas eksistē
+    import database
+    
+    conn = sqlite3.connect("calorie_tracker.db")
+    conn.execute("PRAGMA foreign_keys = ON;")
+    c = conn.cursor()
+    
     while True:
-        print("\n=== CALORIE TRACKER IZVĒLNE ===")
-        print("1. Reģistrēt jaunu lietotāju")
-        print("2. Pievienot aktivitāti (treniņu)")
-        print("3. Iziet")
-
-        izvele = input("Izvēlies darbību (1-3): ")
-
-        if izvele == "1":
-            registret_lietotaju()
-        elif izvele == "2":
-            pievienot_aktivitati()
-        elif izvele == "3":
+        print("\n================ CALORIE TRACKER ================")
+        print("1. Skatīt lietotājus (users)")
+        print("2. Pievienot lietotāju")
+        print("3. Skatīt ēdienu kategorijas (food_categories)")
+        print("4. Pievienot ēdienu kategoriju")
+        print("5. Skatīt vingrojumus (exercises)")
+        print("6. Pievienot vingrojumu")
+        print("7. Skatīt produktus (foods)")
+        print("8. Pievienot produktu")
+        print("9. Skatīt produktu porcijas (food_servings)")
+        print("10. Skatīt lietotāju mērķus (user_goals)")
+        print("11. Skatīt svara žurnālu (weight_logs)")
+        print("12. Pievienot svara ierakstu")
+        print("13. Skatīt aktivitāšu žurnālu (exercise_logs)")
+        print("14. Skatīt maltītes (meals)")
+        print("15. Skatīt maltīšu produktus (meal_items)")
+        print("0. Iziet")
+        
+        choice = input("\nIzvēlies opciju (0-15): ")
+        
+        if choice == "1":
+            for row in c.execute("SELECT * FROM users"): print(row)
+        elif choice == "2":
+            email = input("E-pasts: ")
+            name = input("Vārds: ")
+            goal = int(input("Kaloriju mērķis: "))
+            c.execute("INSERT INTO users (email, display_name, daily_calorie_goal, created_at) VALUES (?, ?, ?, datetime('now'))", (email, name, goal))
+            conn.commit()
+            print("Lietotājs pievienots!")
+        elif choice == "3":
+            for row in c.execute("SELECT * FROM food_categories"): print(row)
+        elif choice == "4":
+            name = input("Kategorijas nosaukums: ")
+            desc = input("Apraksts: ")
+            c.execute("INSERT INTO food_categories (name, description) VALUES (?, ?)", (name, desc))
+            conn.commit()
+            print("Kategorija pievienota!")
+        elif choice == "5":
+            for row in c.execute("SELECT * FROM exercises"): print(row)
+        elif choice == "6":
+            name = input("Vingrojuma nosaukums: ")
+            cat = input("Kategorija: ")
+            cpm = float(input("Kalorijas minūtē: "))
+            c.execute("INSERT INTO exercises (name, category, calories_per_minute) VALUES (?, ?, ?)", (name, cat, cpm))
+            conn.commit()
+            print("Vingrojums pievienots!")
+        elif choice == "7":
+            for row in c.execute("SELECT * FROM foods"): print(row)
+        elif choice == "8":
+            name = input("Produkta nosaukums: ")
+            cal = float(input("Kalorijas: "))
+            c.execute("INSERT INTO foods (name, serving_size, serving_unit, calories, protein_g, carbs_g, fat_g, is_verified) VALUES (?, 100, 'g', ?, 0, 0, 0, 1)", (name, cal))
+            conn.commit()
+            print("Produkts pievienots!")
+        elif choice == "9":
+            for row in c.execute("SELECT * FROM food_servings"): print(row)
+        elif choice == "10":
+            for row in c.execute("SELECT * FROM user_goals"): print(row)
+        elif choice == "11":
+            for row in c.execute("SELECT * FROM weight_logs"): print(row)
+        elif choice == "12":
+            uid = int(input("Lietotāja ID: "))
+            weight = float(input("Svars (kg): "))
+            c.execute("INSERT INTO weight_logs (user_id, weight_kg, logged_at) VALUES (?, ?, datetime('now'))", (uid, weight))
+            conn.commit()
+            print("Svars reģistrēts!")
+        elif choice == "13":
+            for row in c.execute("SELECT * FROM exercise_logs"): print(row)
+        elif choice == "14":
+            for row in c.execute("SELECT * FROM meals"): print(row)
+        elif choice == "15":
+            for row in c.execute("SELECT * FROM meal_items"): print(row)
+        elif choice == "0":
             print("Uz redzēšanos!")
             break
         else:
-            print("Nekorekta izvēle, mēģini vēlreiz.")
+            print("Nederīga izvēle!")
+
+    conn.close()
+
+if __name__ == "__main__":
+    run()
