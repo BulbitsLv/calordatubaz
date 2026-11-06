@@ -1,21 +1,72 @@
-# Calorie Tracker (Kaloriju skaitītājs)
+🌿 Calorie Tracker
+Kaloriju uzskaites programma
 
-Konsoles un grafiskā lietojumprogramma Python valodā, kas izstrādāta ar SQLite datubāzi, lai sekotu līdzi ikdienas kalorijām, uzturvērtībai, fiziskajām aktivitātēm un svara izmaiņām.
+Vienkārša Python programma, kas palīdz pārvaldīt kalorijas, pārtikas produktus, fiziskās aktivitātes un svara izmaiņas.
 
-## Galvenās iespējas
-- Lietotāju pārvaldība: Lietotāju reģistrācija un individuālo dienas kaloriju mērķu uzstādīšana.
-- Uztura uzskaite: Ēdienu kataloga un maltīšu žurnāla pārvaldība (meals, meal_items).
-- Aktivitāšu reģistrs: Fizisko vingrojumu uzskaite un kaloriju patēriņa kontrole (exercise_logs, exercises).
-- Svara kontrole: Svara dinamikas fiksēšana laika gaitā (weight_logs).
+📌 Par projektu
 
-## Tehnoloģijas
-- Python 3.x - programmēšanas valoda.
-- SQLite3 - datubāzes dzinējs (iebūvētā Python bibliotēka, nav nepieciešams instalēt papildu ārējās pakotnes).
-- Tkinter - grafiskās saskarnes bibliotēka (iebūvēta Python).
+Calorie Tracker ir programma ar grafisko lietotāja saskarni (GUI), kas izveidota Python valodā un izmanto SQLite datubāzi.
 
-## Kā palaist programmu
-1. Pārliecinies, ka tavā datorā ir instalēts Python 3.
-2. Saglabā failus database.py un main.py vienā mapē.
-3. Atver termināli šajā mapē un palaid programmu ar komandu:
-   ```bash
-   python main.py
+Programmai ir vienkāršs zaļi balts dizains, kas padara tās lietošanu ērtu un saprotamu.
+
+✨ Galvenās iespējas
+Funkcija	Apraksts
+👤 Lietotāji	Lietotāju pievienošana un apskate
+🍎 Produkti	Pārtikas produktu pievienošana un apskate
+🍽️ Maltītes	Maltīšu datu apskate
+💪 Vingrojumi	Fizisko aktivitāšu apskate
+⚖️ Svara žurnāls	Svara reģistrēšana un apskate
+🗄️ Datubāze	Dažādu datubāzes tabulu apskate
+🛠️ Izmantotās tehnoloģijas
+Python 3.x – programmas izveidei.
+SQLite3 – datu glabāšanai.
+Tkinter – grafiskās saskarnes izveidei.
+📁 Projekta struktūra
+text
+Calorie-Tracker/
+│
+├── main.py
+├── database.py
+├── calorie_tracker.db
+└── README.md
+
+Fails	Apraksts
+main.py	Programmas galvenais fails un grafiskā saskarne
+database.py	Datubāzes izveide un pārvaldība
+calorie_tracker.db	SQLite datubāzes fails
+README.md	Projekta apraksts
+🚀 Kā palaist programmu?
+
+1. Instalē Python 3, ja tas vēl nav instalēts.
+
+2. Lejupielādē vai nokopē projekta failus vienā mapē.
+
+3. Atver projektu Visual Studio Code.
+
+4. Atver termināli un ievadi:
+
+bash
+python main.py
+
+
+5. Programma atvērsies jaunā logā!
+
+🎨 Programmas dizains
+
+Programmas grafiskajā saskarnē izmantotas:
+
+Gaiši zaļa fona krāsa.
+Tumši zaļi virsraksti.
+Baltas pogas.
+Vienkāršs un pārskatāms izkārtojums.
+👨‍💻 Projekts
+
+Projekta nosaukums: Calorie Tracker
+
+Programmēšanas valoda: Python
+
+Datubāze: SQLite
+
+Saskarne: Tkinter
+
+Izveidots mācību projekta ietvaros. 🌿

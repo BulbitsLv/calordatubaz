@@ -1,21 +1,40 @@
+
+
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox
 
 def get_db():
     conn = sqlite3.connect("calorie_tracker.db")
-    conn.execute("PRAGMA foreign_keys = ON;")
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
+
 
 class App:
     def __init__(self, root):
         self.root = root
-        root.title("Calorie Tracker - Grafiskā saskarne")
-        root.geometry("420x550")
+        root.title("Calorie Tracker")
+        root.geometry("450x650")
+        root.configure(bg="#EAF2E9")
 
-        tk.Label(root, text="Calorie Tracker Vadība", font=("Arial", 14, "bold")).pack(pady=10)
+        # Virsraksts
+        tk.Label(
+            root,
+            text="Calorie Tracker",
+            font=("Arial", 24, "bold"),
+            bg="#EAF2E9",
+            fg="#28583A"
+        ).pack(pady=(20, 5))
 
-        # Galvenās pogas tabulu apskatei un datu pievienošanai
+        tk.Label(
+            root,
+            text="Kaloriju uzskaites programma",
+            font=("Arial", 11),
+            bg="#EAF2E9",
+            fg="#526B57"
+        ).pack(pady=(0, 20))
+
+        # Pogas
         btn_configs = [
             ("Skatīt lietotājus", lambda: self.show_table("users")),
             ("Pievienot lietotāju", self.add_user),
@@ -25,104 +44,246 @@ class App:
             ("Skatīt svara žurnālu", lambda: self.show_table("weight_logs")),
             ("Reģistrēt svaru", self.add_weight),
             ("Skatīt maltītes", lambda: self.show_table("meals")),
-            ("Skatīt visas citas tabulas", self.show_all_tables_menu),
+            ("Skatīt citas tabulas", self.show_all_tables_menu),
         ]
 
         for text, cmd in btn_configs:
-            tk.Button(root, text=text, width=32, command=cmd).pack(pady=4)
+            tk.Button(
+                root,
+                text=text,
+                font=("Arial", 11),
+                width=30,
+                height=2,
+                bg="#FFFFFF",
+                fg="#28583A",
+                activebackground="#CDE3CF",
+                relief="flat",
+                cursor="hand2",
+                command=cmd
+            ).pack(pady=4)
 
-        tk.Button(root, text="Iziet", width=32, command=root.quit, fg="red").pack(pady=15)
+        # Iziet poga
+        tk.Button(
+            root,
+            text="Iziet",
+            font=("Arial", 11, "bold"),
+            width=30,
+            height=2,
+            bg="#B95B55",
+            fg="white",
+            activebackground="#963F3A",
+            relief="flat",
+            cursor="hand2",
+            command=root.quit
+        ).pack(pady=15)
 
+    # Tabulu apskate
     def show_table(self, table_name):
         w = tk.Toplevel(self.root)
-        w.title(f"Tabula: {table_name}")
-        w.geometry("500x350")
-        
-        t = tk.Text(w, wrap=tk.WORD)
-        t.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
+        w.title("Tabula: " + table_name)
+        w.geometry("550x400")
+        w.configure(bg="#EAF2E9")
+
+        tk.Label(
+            w,
+            text=table_name,
+            font=("Arial", 18, "bold"),
+            bg="#EAF2E9",
+            fg="#28583A"
+        ).pack(pady=10)
+
+        t = tk.Text(w, wrap=tk.WORD, font=("Arial", 10))
+        t.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
+
         conn = get_db()
+
         try:
             for row in conn.execute(f"SELECT * FROM {table_name}"):
                 t.insert(tk.END, str(row) + "\n")
+
         except Exception as e:
-            t.insert(tk.END, f"Kļūda: {e}")
+            t.insert(tk.END, "Kļūda: " + str(e))
+
         conn.close()
         t.config(state=tk.DISABLED)
 
+    # Visu tabulu izvēlne
     def show_all_tables_menu(self):
         w = tk.Toplevel(self.root)
-        w.title("Visas datubāzes tabulas")
-        w.geometry("350x400")
-        
-        tables = [
-            "users", "food_categories", "exercises", "foods", 
-            "food_servings", "user_goals", "weight_logs", 
-            "exercise_logs", "meals", "meal_items"
-        ]
-        
-        tk.Label(w, text="Izvēlies tabulu, ko apskatīt:", font=("Arial", 10, "bold")).pack(pady=5)
-        for tbl in tables:
-            tk.Button(w, text=tbl, width=25, command=lambda t=tbl: self.show_table(t)).pack(pady=2)
+        w.title("Visas tabulas")
+        w.geometry("350x500")
+        w.configure(bg="#EAF2E9")
 
+        tk.Label(
+            w,
+            text="Izvēlies tabulu:",
+            font=("Arial", 16, "bold"),
+            bg="#EAF2E9",
+            fg="#28583A"
+        ).pack(pady=15)
+
+        tables = [
+            "users", "food_categories", "exercises",
+            "foods", "food_servings", "user_goals",
+            "weight_logs", "exercise_logs", "meals",
+            "meal_items"
+        ]
+
+        for tbl in tables:
+            tk.Button(
+                w,
+                text=tbl,
+                width=25,
+                bg="white",
+                fg="#28583A",
+                relief="flat",
+                command=lambda t=tbl: self.show_table(t)
+            ).pack(pady=4)
+
+    # Pievienot lietotāju
     def add_user(self):
         w = tk.Toplevel(self.root)
         w.title("Pievienot lietotāju")
-        tk.Label(w, text="E-pasts:").pack()
-        e1 = tk.Entry(w, width=25); e1.pack()
-        tk.Label(w, text="Vārds:").pack()
-        e2 = tk.Entry(w, width=25); e2.pack()
-        tk.Label(w, text="Kaloriju mērķis:").pack()
-        e3 = tk.Entry(w, width=25); e3.pack()
+        w.geometry("350x350")
+        w.configure(bg="#EAF2E9")
+
+        tk.Label(
+            w, text="Pievienot lietotāju",
+            font=("Arial", 17, "bold"),
+            bg="#EAF2E9", fg="#28583A"
+        ).pack(pady=15)
+
+        tk.Label(w, text="E-pasts:", bg="#EAF2E9").pack()
+        e1 = tk.Entry(w, width=30)
+        e1.pack(pady=5)
+
+        tk.Label(w, text="Vārds:", bg="#EAF2E9").pack()
+        e2 = tk.Entry(w, width=30)
+        e2.pack(pady=5)
+
+        tk.Label(w, text="Kaloriju mērķis:", bg="#EAF2E9").pack()
+        e3 = tk.Entry(w, width=30)
+        e3.pack(pady=5)
 
         def save():
-            conn = get_db()
-            conn.execute("INSERT INTO users (email, display_name, daily_calorie_goal, created_at) VALUES (?, ?, ?, datetime('now'))", 
-                         (e1.get(), e2.get(), int(e3.get())))
-            conn.commit()
-            conn.close()
-            messagebox.showinfo("OK", "Lietotājs pievienots!")
-            w.destroy()
-        tk.Button(w, text="Saglabāt", command=save).pack(pady=10)
+            try:
+                conn = get_db()
+                conn.execute(
+                    """INSERT INTO users
+                    (email, display_name, daily_calorie_goal, created_at)
+                    VALUES (?, ?, ?, datetime('now'))""",
+                    (e1.get(), e2.get(), int(e3.get()))
+                )
+                conn.commit()
+                conn.close()
 
+                messagebox.showinfo("OK", "Lietotājs pievienots!")
+                w.destroy()
+
+            except (ValueError, sqlite3.Error) as e:
+                messagebox.showerror("Kļūda", str(e))
+
+        tk.Button(
+            w, text="Saglabāt",
+            bg="#28583A", fg="white",
+            width=20, command=save
+        ).pack(pady=20)
+
+    # Pievienot produktu
     def add_food(self):
         w = tk.Toplevel(self.root)
         w.title("Pievienot produktu")
-        tk.Label(w, text="Nosaukums:").pack()
-        e1 = tk.Entry(w, width=25); e1.pack()
-        tk.Label(w, text="Kalorijas (100g):").pack()
-        e2 = tk.Entry(w, width=25); e2.pack()
+        w.geometry("350x300")
+        w.configure(bg="#EAF2E9")
+
+        tk.Label(
+            w, text="Pievienot produktu",
+            font=("Arial", 17, "bold"),
+            bg="#EAF2E9", fg="#28583A"
+        ).pack(pady=15)
+
+        tk.Label(w, text="Nosaukums:", bg="#EAF2E9").pack()
+        e1 = tk.Entry(w, width=30)
+        e1.pack(pady=5)
+
+        tk.Label(w, text="Kalorijas (100g):", bg="#EAF2E9").pack()
+        e2 = tk.Entry(w, width=30)
+        e2.pack(pady=5)
 
         def save():
-            conn = get_db()
-            conn.execute("INSERT INTO foods (name, serving_size, serving_unit, calories, protein_g, carbs_g, fat_g, is_verified) VALUES (?, 100, 'g', ?, 0, 0, 0, 1)", 
-                         (e1.get(), float(e2.get())))
-            conn.commit()
-            conn.close()
-            messagebox.showinfo("OK", "Produkts pievienots!")
-            w.destroy()
-        tk.Button(w, text="Saglabāt", command=save).pack(pady=10)
+            try:
+                conn = get_db()
+                conn.execute(
+                    """INSERT INTO foods
+                    (name, serving_size, serving_unit, calories,
+                    protein_g, carbs_g, fat_g, is_verified)
+                    VALUES (?, 100, 'g', ?, 0, 0, 0, 1)""",
+                    (e1.get(), float(e2.get()))
+                )
+                conn.commit()
+                conn.close()
 
+                messagebox.showinfo("OK", "Produkts pievienots!")
+                w.destroy()
+
+            except (ValueError, sqlite3.Error) as e:
+                messagebox.showerror("Kļūda", str(e))
+
+        tk.Button(
+            w, text="Saglabāt",
+            bg="#28583A", fg="white",
+            width=20, command=save
+        ).pack(pady=20)
+
+    # Reģistrēt svaru
     def add_weight(self):
         w = tk.Toplevel(self.root)
         w.title("Reģistrēt svaru")
-        tk.Label(w, text="Lietotāja ID:").pack()
-        e1 = tk.Entry(w, width=25); e1.pack()
-        tk.Label(w, text="Svars (kg):").pack()
-        e2 = tk.Entry(w, width=25); e2.pack()
+        w.geometry("350x300")
+        w.configure(bg="#EAF2E9")
+
+        tk.Label(
+            w, text="Reģistrēt svaru",
+            font=("Arial", 17, "bold"),
+            bg="#EAF2E9", fg="#28583A"
+        ).pack(pady=15)
+
+        tk.Label(w, text="Lietotāja ID:", bg="#EAF2E9").pack()
+        e1 = tk.Entry(w, width=30)
+        e1.pack(pady=5)
+
+        tk.Label(w, text="Svars (kg):", bg="#EAF2E9").pack()
+        e2 = tk.Entry(w, width=30)
+        e2.pack(pady=5)
 
         def save():
-            conn = get_db()
-            conn.execute("INSERT INTO weight_logs (user_id, weight_kg, logged_at) VALUES (?, ?, datetime('now'))", 
-                         (int(e1.get()), float(e2.get())))
-            conn.commit()
-            conn.close()
-            messagebox.showinfo("OK", "Svars reģistrēts!")
-            w.destroy()
-        tk.Button(w, text="Saglabāt", command=save).pack(pady=10)
+            try:
+                conn = get_db()
+                conn.execute(
+                    """INSERT INTO weight_logs
+                    (user_id, weight_kg, logged_at)
+                    VALUES (?, ?, datetime('now'))""",
+                    (int(e1.get()), float(e2.get()))
+                )
+                conn.commit()
+                conn.close()
+
+                messagebox.showinfo("OK", "Svars reģistrēts!")
+                w.destroy()
+
+            except (ValueError, sqlite3.Error) as e:
+                messagebox.showerror("Kļūda", str(e))
+
+        tk.Button(
+            w, text="Saglabāt",
+            bg="#28583A", fg="white",
+            width=20, command=save
+        ).pack(pady=20)
+
 
 if __name__ == "__main__":
     import database
+
     root = tk.Tk()
-    App(root)
+    app = App(root)
     root.mainloop()
