@@ -1,5 +1,4 @@
 import sqlite3
-
 def run():
     # Pārliecināmies, ka datubāze un tabulas eksistē
     import database
