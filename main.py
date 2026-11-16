@@ -2,6 +2,7 @@
 
 import sqlite3
 import tkinter as tk
+import tkinter.ttk
 from tkinter import messagebox
 
 def get_db():
@@ -78,10 +79,11 @@ class App:
         ).pack(pady=15)
 
     # Tabulu apskate
+        
     def show_table(self, table_name):
         w = tk.Toplevel(self.root)
         w.title("Tabula: " + table_name)
-        w.geometry("550x400")
+        w.geometry("750x400")
         w.configure(bg="#EAF2E9")
 
         tk.Label(
@@ -92,20 +94,52 @@ class App:
             fg="#28583A"
         ).pack(pady=10)
 
-        t = tk.Text(w, wrap=tk.WORD, font=("Arial", 10))
-        t.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
-
         conn = get_db()
 
         try:
-            for row in conn.execute(f"SELECT * FROM {table_name}"):
-                t.insert(tk.END, str(row) + "\n")
+            cursor = conn.execute(f"SELECT * FROM {table_name}")
+            columns = [description[0] for description in cursor.description]
+
+            frame = tk.Frame(w)
+            frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
+
+            tree = tk.ttk.Treeview(
+                frame,
+                columns=columns,
+                show="headings"
+            )
+
+            for column in columns:
+                tree.heading(column, text=column)
+                tree.column(column, width=130, minwidth=80)
+
+            scrollbar_y = tk.ttk.Scrollbar(
+                frame, orient=tk.VERTICAL, command=tree.yview
+            )
+            scrollbar_x = tk.ttk.Scrollbar(
+                frame, orient=tk.HORIZONTAL, command=tree.xview
+            )
+
+            tree.configure(
+                yscrollcommand=scrollbar_y.set,
+                xscrollcommand=scrollbar_x.set
+            )
+
+            tree.grid(row=0, column=0, sticky="nsew")
+            scrollbar_y.grid(row=0, column=1, sticky="ns")
+            scrollbar_x.grid(row=1, column=0, sticky="ew")
+
+            frame.grid_rowconfigure(0, weight=1)
+            frame.grid_columnconfigure(0, weight=1)
+
+            for row in cursor.fetchall():
+                tree.insert("", tk.END, values=row)
 
         except Exception as e:
-            t.insert(tk.END, "Kļūda: " + str(e))
+            messagebox.showerror("Kļūda", str(e))
 
-        conn.close()
-        t.config(state=tk.DISABLED)
+        finally:
+            conn.close()
 
     # Visu tabulu izvēlne
     def show_all_tables_menu(self):
